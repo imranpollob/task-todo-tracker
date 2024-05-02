@@ -8,7 +8,7 @@ export function Task({
 }: {
   name: string;
   time: number;
-  addTime: () => void;
+  addTime: (taskName: string, taskTime: number) => void;
 }) {
   return (
     <div className="flex flex-col items-start p-3 border border-gray-200 shadow-md">
@@ -17,8 +17,11 @@ export function Task({
         <div className="text-gray-500">{numberToTime(time)}</div>
       </div>
       <div className="flex items-center space-x-6 mt-2">
-        <button onClick={() => addTime()}>
-          <Icon.AlarmClockPlus className="w-5 h-5 text-gray-500" />
+        <button onClick={() => addTime(name, 30)}>
+          <Icon.CirclePlus className="w-5 h-5 text-gray-500" />
+        </button>
+        <button onClick={() => addTime(name, -30)}>
+          <Icon.CircleMinus className="w-5 h-5 text-gray-500" />
         </button>
         <button>
           <Icon.Pencil className="w-5 h-5 text-gray-500" />

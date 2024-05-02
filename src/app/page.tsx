@@ -28,11 +28,13 @@ export default function Home() {
   const handleAddTime = (taskName: string, increment: number) => {
     setTasks((tasks) =>
       tasks.map((task) =>
-        task.name === taskName ? { ...task, time: task.time + increment } : task
+        task.name === taskName
+          ? { ...task, time: Math.max(task.time + increment, 0) }
+          : task
       )
     );
 
-    setTotalTime((prevTotalTime) => prevTotalTime + 30);
+    setTotalTime((prevTotalTime) => Math.max(prevTotalTime + increment, 0));
   };
 
   return (
@@ -63,7 +65,7 @@ export default function Home() {
                 key={index}
                 name={task.name}
                 time={task.time}
-                addTime={() => handleAddTime(task.name, 30)}
+                addTime={handleAddTime}
               />
             ))}
           </div>
