@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
+
+import { Task } from "@/components/Task";
+
+import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import * as Icon from "lucide-react";
-import { Task } from "@/components/Task";
+
 import { numberToTime } from "@/helpers/NumberToTime";
 
 export default function Home() {
@@ -19,11 +22,7 @@ export default function Home() {
     { name: "Gaming", time: 0 },
     { name: "Sleep", time: 0 },
   ]);
-
   const [totalTime, setTotalTime] = useState(0);
-
-  const [count, setCount] = useState(0);
-  const [count2, setCount2] = useState(0);
 
   const handleAddTime = (taskName: string, increment: number) => {
     setTasks((tasks) =>
@@ -35,6 +34,14 @@ export default function Home() {
     );
 
     setTotalTime((prevTotalTime) => Math.max(prevTotalTime + increment, 0));
+  };
+
+  const handleNameChange = (taskName: string, newName: string) => {
+    setTasks((tasks) =>
+      tasks.map((task) =>
+        task.name === taskName ? { ...task, name: newName } : task
+      )
+    );
   };
 
   return (
@@ -66,6 +73,7 @@ export default function Home() {
                 name={task.name}
                 time={task.time}
                 addTime={handleAddTime}
+                changeName={handleNameChange}
               />
             ))}
           </div>
