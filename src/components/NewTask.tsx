@@ -40,7 +40,7 @@ export function NewTask({ addTask }: TaskProps) {
   }
 
   return (
-    <div className="py-6 px-6 border-t border-gray-200">
+    <div className="py-6 px-6 border-t border-gray-200 dark:border-gray-800">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

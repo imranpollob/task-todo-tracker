@@ -78,9 +78,9 @@ export default function Home() {
   return (
     <div
       key="1"
-      className="flex flex-col h-screen max-w-md mx-auto bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border border-gray-200 "
+      className="flex flex-col h-screen max-w-md mx-auto bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border border-gray-200 dark:border-gray-800"
     >
-      <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 shadow-sm">
         <div className="text-lg font-medium">
           Total Time: {numberToTime(totalTime)}
         </div>
