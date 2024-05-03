@@ -5,11 +5,33 @@ import { useState } from "react";
 import { Task } from "@/components/Task";
 import { NewTask } from "@/components/NewTask";
 
+import { useTheme } from "next-themes";
 import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import { numberToTime } from "@/helpers/NumberToTime";
+
+export function ModeToggle() {
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = (currentTheme: string | undefined) => {
+    const newTheme = currentTheme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      className="rounded-full border border-gray-200 w-8 h-8"
+      onClick={() => toggleTheme(theme)}
+    >
+      <Icon.Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <Icon.Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <span className="sr-only">Toggle theme</span>
+    </Button>
+  );
+}
 
 export default function Home() {
   interface Task {
@@ -62,14 +84,7 @@ export default function Home() {
         <div className="text-lg font-medium">
           Total Time: {numberToTime(totalTime)}
         </div>
-        <Button
-          className="rounded-full border border-gray-200 w-8 h-8 "
-          size="icon"
-          variant="ghost"
-        >
-          <Icon.SunIcon className="h-5 w-5" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
+        <ModeToggle />
       </header>
 
       <div className="flex-1 overflow-hidden">
