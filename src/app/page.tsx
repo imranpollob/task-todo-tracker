@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 
 import { numberToTime } from "@/helpers/NumberToTime";
 
-export function ModeToggle() {
+export default function Home() {
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = (currentTheme: string | undefined) => {
@@ -19,21 +19,6 @@ export function ModeToggle() {
     setTheme(newTheme);
   };
 
-  return (
-    <Button
-      variant="outline"
-      size="icon"
-      className="rounded-full border border-gray-200 w-8 h-8"
-      onClick={() => toggleTheme(theme)}
-    >
-      <Icon.Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-      <Icon.Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
-    </Button>
-  );
-}
-
-export default function Home() {
   interface Task {
     name: string;
     time: number;
@@ -84,7 +69,17 @@ export default function Home() {
         <div className="text-lg font-medium">
           Total Time: {numberToTime(totalTime)}
         </div>
-        <ModeToggle />
+
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full border border-gray-200 w-8 h-8"
+          onClick={() => toggleTheme(theme)}
+        >
+          <Icon.Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Icon.Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
       </header>
 
       <div className="flex-1 overflow-hidden">
