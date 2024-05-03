@@ -25,6 +25,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { numberToTime } from "@/helpers/NumberToTime";
 
@@ -39,9 +50,16 @@ interface TaskProps {
   time: number;
   addTime: (taskName: string, taskTime: number) => void;
   changeName: (taskName: string, newName: string) => void;
+  deleteTask: (taskName: string) => void;
 }
 
-export function Task({ name, time, addTime, changeName }: TaskProps) {
+export function Task({
+  name,
+  time,
+  addTime,
+  changeName,
+  deleteTask,
+}: TaskProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -49,10 +67,12 @@ export function Task({ name, time, addTime, changeName }: TaskProps) {
     },
   });
 
+  function onDelete(name: string) {
+    deleteTask(name);
+  }
+
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
     changeName(name, data.taskname);
-    console.log(JSON.stringify(data, null, 2));
   }
 
   return (
@@ -62,16 +82,19 @@ export function Task({ name, time, addTime, changeName }: TaskProps) {
         <div className="text-gray-500">{numberToTime(time)}</div>
       </div>
       <div className="flex items-center space-x-6 mt-2">
-        <button onClick={() => addTime(name, 30)}>
+        <button title="Add 30 mintues" onClick={() => addTime(name, 30)}>
           <Icon.CirclePlus className="w-5 h-5 text-gray-500" />
         </button>
-        <button onClick={() => addTime(name, -30)}>
+        <button title="Minus 30 minutes" onClick={() => addTime(name, -30)}>
           <Icon.CircleMinus className="w-5 h-5 text-gray-500" />
         </button>
 
         <Sheet key="top">
           <SheetTrigger asChild>
-            <button>
+            <button
+              title="Edit task"
+              onClick={() => form.setValue("taskname", name)}
+            >
               <Icon.Pencil className="w-5 h-5 text-gray-500" />
             </button>
           </SheetTrigger>
@@ -81,6 +104,8 @@ export function Task({ name, time, addTime, changeName }: TaskProps) {
               <SheetTitle>Configure Task</SheetTitle>
               <SheetDescription>Edit or delete the task</SheetDescription>
             </SheetHeader>
+
+            <p>{name}</p>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -95,17 +120,34 @@ export function Task({ name, time, addTime, changeName }: TaskProps) {
                         Task Name
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="shadcn"
-                          {...field}
-                          className="col-span-3"
-                        />
+                        <Input type="text" {...field} className="col-span-3" />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="col-span-4" />
                     </FormItem>
                   )}
                 />
                 <SheetFooter>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive">Delete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure to delete the task?
+                        </AlertDialogTitle>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <SheetClose asChild>
+                          <AlertDialogAction onClick={() => onDelete(name)}>
+                            Continue
+                          </AlertDialogAction>
+                        </SheetClose>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
                   <SheetClose asChild>
                     <Button type="submit">Save changes</Button>
                   </SheetClose>

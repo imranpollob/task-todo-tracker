@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Task } from "@/components/Task";
+import { NewTask } from "@/components/NewTask";
 
 import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,14 @@ export default function Home() {
     );
   };
 
+  const handleTaskAdd = (taskName: string) => {
+    setTasks((tasks) => [...tasks, { name: taskName, time: 0 }]);
+  };
+
+  const handleTaskDelete = (taskName: string) => {
+    setTasks((tasks) => tasks.filter((task) => task.name !== taskName));
+  };
+
   return (
     <div
       key="1"
@@ -74,20 +83,14 @@ export default function Home() {
                 time={task.time}
                 addTime={handleAddTime}
                 changeName={handleNameChange}
+                deleteTask={handleTaskDelete}
               />
             ))}
           </div>
         </div>
       </div>
 
-      <footer className="flex items-center justify-between px-6 py-4 border-t border-gray-200 ">
-        <div className="flex-1">
-          <Input className="w-full" placeholder="Add new task" type="text" />
-        </div>
-        <Button className="ml-4" size="sm" variant="outline">
-          <Icon.CheckIcon className="w-5 h-5" />
-        </Button>
-      </footer>
+      <NewTask addTask={handleTaskAdd} />
     </div>
   );
 }
