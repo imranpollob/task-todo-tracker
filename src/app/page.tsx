@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import { Task } from "@/components/Task";
 import { NewTask } from "@/components/NewTask";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { useTheme } from "next-themes";
 import * as Icon from "lucide-react";
@@ -12,25 +14,33 @@ import { Button } from "@/components/ui/button";
 import { numberToTime } from "@/helpers/NumberToTime";
 
 export default function Home() {
+  interface Task {
+    name: string;
+    time: number;
+  }
+
   const { theme, setTheme } = useTheme();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [totalTime, setTotalTime] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const toggleTheme = (currentTheme: string | undefined) => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
     setTheme(newTheme);
   };
 
-  interface Task {
-    name: string;
-    time: number;
-  }
-
-  const [tasks, setTasks] = useState<Task[]>([
-    { name: "Research", time: 0 },
-    { name: "Hustle", time: 0 },
-    { name: "Gaming", time: 0 },
-    { name: "Sleep", time: 0 },
-  ]);
-  const [totalTime, setTotalTime] = useState(0);
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/api/tasks")
+      .then((response) => {
+        setTasks(response.data.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching tasks:", error);
+        setLoading(false);
+      });
+  }, []);
 
   const handleAddTime = (taskName: string, increment: number) => {
     setTasks((tasks) =>
@@ -66,9 +76,13 @@ export default function Home() {
       className="flex flex-col h-screen max-w-md mx-auto bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border border-gray-200 dark:border-gray-800"
     >
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 shadow-sm">
-        <div className="text-lg font-medium">
-          Total Time: {numberToTime(totalTime)}
-        </div>
+        {loading ? (
+          <Skeleton className="h-8 w-40" />
+        ) : (
+          <div className="text-lg font-medium">
+            Total Time: {numberToTime(totalTime)}
+          </div>
+        )}
 
         <Button
           variant="outline"
@@ -83,21 +97,29 @@ export default function Home() {
       </header>
 
       <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto">
-          <div className="space-y-2 p-3">
-            {/* Task list */}
-            {tasks.map((task, index) => (
-              <Task
-                key={index}
-                name={task.name}
-                time={task.time}
-                addTime={handleAddTime}
-                changeName={handleNameChange}
-                deleteTask={handleTaskDelete}
-              />
-            ))}
+        {loading ? (
+          <div className="p-3">
+            <Skeleton className="h-16 mb-2" />
+            <Skeleton className="h-16 mb-2" />
+            <Skeleton className="h-16 mb-2" />
           </div>
-        </div>
+        ) : (
+          <div className="h-full overflow-y-auto">
+            <div className="space-y-2 p-3">
+              {/* Task list */}
+              {tasks.map((task, index) => (
+                <Task
+                  key={index}
+                  name={task.name}
+                  time={task.time}
+                  addTime={handleAddTime}
+                  changeName={handleNameChange}
+                  deleteTask={handleTaskDelete}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <NewTask addTask={handleTaskAdd} />
