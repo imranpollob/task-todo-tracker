@@ -15,8 +15,9 @@ import { numberToTime } from "@/helpers/NumberToTime";
 
 export default function Home() {
   interface Task {
+    id: number;
     name: string;
-    time: number;
+    elapsed_time: number;
   }
 
   const { theme, setTheme } = useTheme();
@@ -42,32 +43,78 @@ export default function Home() {
       });
   }, []);
 
-  const handleAddTime = (taskName: string, increment: number) => {
-    setTasks((tasks) =>
-      tasks.map((task) =>
-        task.name === taskName
-          ? { ...task, time: Math.max(task.time + increment, 0) }
-          : task
-      )
-    );
+  const handleAddTime = (id: number, increment: number) => {
+    /*
+      we need two tables to track the time elapsed for a task
+      1. tasks
+      2. task_times
 
-    setTotalTime((prevTotalTime) => Math.max(prevTotalTime + increment, 0));
+      so when this function is called, we need to add a new row to task_times
+      with the task_id and the time elapsed
+
+      from the backend, we can calculate the total time for a task by summing
+      the elapsed_time column in the task_times table for a given task_id
+    */
+    // const taskToUpdate = tasks.find((task) => task.id === id);
+    // if (taskToUpdate) {
+    //   const updatedTime = Math.max(taskToUpdate.elapsed_time + increment, 0);
+    //   axios
+    //     .put(`http://localhost:8000/api/tasks/${id}`, {
+    //       elapsed_time: updatedTime,
+    //     })
+    //     .then((response) => {
+    //       setTasks((tasks) =>
+    //         tasks.map((task) =>
+    //           task.id === id ? { ...task, elapsed_time: updatedTime } : task
+    //         )
+    //       );
+    //       setTotalTime((prevTotalTime) =>
+    //         Math.max(prevTotalTime + increment, 0)
+    //       );
+    //     })
+    //     .catch((error) => {
+    //       console.error("Failed to update task elapsed_time:", error);
+    //     });
+    // }
   };
 
-  const handleNameChange = (taskName: string, newName: string) => {
-    setTasks((tasks) =>
-      tasks.map((task) =>
-        task.name === taskName ? { ...task, name: newName } : task
-      )
-    );
+  const handleNameChange = (id: number, newName: string) => {
+    axios
+      .put(`http://localhost:8000/api/tasks/${id}`, { name: newName })
+      .then((response) => {
+        setTasks((tasks) =>
+          tasks.map((task) =>
+            task.id === id ? { ...task, name: newName } : task
+          )
+        );
+      })
+      .catch((error) => {
+        console.error("Failed to update task name:", error);
+      });
   };
 
   const handleTaskAdd = (taskName: string) => {
-    setTasks((tasks) => [...tasks, { name: taskName, time: 0 }]);
+    const newTask = { name: taskName, elapsed_time: 0 };
+    axios
+      .post(`http://localhost:8000/api/tasks`, newTask)
+      .then((response) => {
+        const createdTask = response.data.data;
+        setTasks((tasks) => [...tasks, createdTask]);
+      })
+      .catch((error) => {
+        console.error("Failed to add new task:", error);
+      });
   };
 
-  const handleTaskDelete = (taskName: string) => {
-    setTasks((tasks) => tasks.filter((task) => task.name !== taskName));
+  const handleTaskDelete = (id: number) => {
+    axios
+      .delete(`http://localhost:8000/api/tasks/${id}`)
+      .then((response) => {
+        setTasks((tasks) => tasks.filter((task) => task.id !== id));
+      })
+      .catch((error) => {
+        console.error("Failed to delete task:", error);
+      });
   };
 
   return (
@@ -110,8 +157,9 @@ export default function Home() {
               {tasks.map((task, index) => (
                 <Task
                   key={index}
+                  id={task.id}
                   name={task.name}
-                  time={task.time}
+                  elapsed_time={task.elapsed_time}
                   addTime={handleAddTime}
                   changeName={handleNameChange}
                   deleteTask={handleTaskDelete}
