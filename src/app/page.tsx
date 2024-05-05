@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { numberToTime } from "@/helpers/NumberToTime";
 
 export default function Home() {
+  const apiURL = process.env.NEXT_PUBLIC_API_URL;
+
   interface Task {
     id: number;
     name: string;
@@ -32,7 +34,7 @@ export default function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/tasks")
+      .get(`${apiURL}/tasks`)
       .then((response) => {
         setTasks(response.data.data);
         setLoading(false);
@@ -56,7 +58,7 @@ export default function Home() {
       }
 
       axios
-        .post(`http://localhost:8000/api/tasks/${id}/addtime`, {
+        .post(`${apiURL}/tasks/${id}/addtime`, {
           elapsed_time: increment,
         })
         .then((response) => {
@@ -77,7 +79,7 @@ export default function Home() {
 
   const handleNameChange = (id: number, newName: string) => {
     axios
-      .put(`http://localhost:8000/api/tasks/${id}`, { name: newName })
+      .put(`${apiURL}/tasks/${id}`, { name: newName })
       .then((response) => {
         setTasks((tasks) =>
           tasks.map((task) =>
@@ -93,7 +95,7 @@ export default function Home() {
   const handleTaskAdd = (taskName: string) => {
     const newTask = { name: taskName, elapsed_time: 0 };
     axios
-      .post(`http://localhost:8000/api/tasks`, newTask)
+      .post(`${apiURL}/tasks`, newTask)
       .then((response) => {
         const createdTask = response.data.data;
         setTasks((tasks) => [...tasks, createdTask]);
@@ -105,7 +107,7 @@ export default function Home() {
 
   const handleTaskDelete = (id: number) => {
     axios
-      .delete(`http://localhost:8000/api/tasks/${id}`)
+      .delete(`${apiURL}/tasks/${id}`)
       .then((response) => {
         setTasks((tasks) => tasks.filter((task) => task.id !== id));
       })
