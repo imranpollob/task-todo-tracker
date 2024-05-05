@@ -41,41 +41,38 @@ export default function Home() {
         console.error("Error fetching tasks:", error);
         setLoading(false);
       });
+
+    setTotalTime(tasks.reduce((acc, task) => acc + task.elapsed_time, 0));
+    console.log("RE-RENDERING");
   }, []);
 
   const handleAddTime = (id: number, increment: number) => {
-    /*
-      we need two tables to track the time elapsed for a task
-      1. tasks
-      2. task_times
+    const taskToUpdate = tasks.find((task) => task.id === id);
 
-      so when this function is called, we need to add a new row to task_times
-      with the task_id and the time elapsed
+    if (taskToUpdate) {
+      const updatedTime = taskToUpdate.elapsed_time + increment;
+      if (updatedTime < 0) {
+        return;
+      }
 
-      from the backend, we can calculate the total time for a task by summing
-      the elapsed_time column in the task_times table for a given task_id
-    */
-    // const taskToUpdate = tasks.find((task) => task.id === id);
-    // if (taskToUpdate) {
-    //   const updatedTime = Math.max(taskToUpdate.elapsed_time + increment, 0);
-    //   axios
-    //     .put(`http://localhost:8000/api/tasks/${id}`, {
-    //       elapsed_time: updatedTime,
-    //     })
-    //     .then((response) => {
-    //       setTasks((tasks) =>
-    //         tasks.map((task) =>
-    //           task.id === id ? { ...task, elapsed_time: updatedTime } : task
-    //         )
-    //       );
-    //       setTotalTime((prevTotalTime) =>
-    //         Math.max(prevTotalTime + increment, 0)
-    //       );
-    //     })
-    //     .catch((error) => {
-    //       console.error("Failed to update task elapsed_time:", error);
-    //     });
-    // }
+      axios
+        .post(`http://localhost:8000/api/tasks/${id}/addtime`, {
+          elapsed_time: increment,
+        })
+        .then((response) => {
+          setTasks((tasks) =>
+            tasks.map((task) =>
+              task.id === id ? { ...task, elapsed_time: updatedTime } : task
+            )
+          );
+          setTotalTime((prevTotalTime) =>
+            Math.max(prevTotalTime + increment, 0)
+          );
+        })
+        .catch((error) => {
+          console.error("Failed to update task elapsed_time:", error);
+        });
+    }
   };
 
   const handleNameChange = (id: number, newName: string) => {
