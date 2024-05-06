@@ -26,6 +26,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [totalTime, setTotalTime] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [backendWorking, setBackendWorking] = useState(false);
 
   const toggleTheme = (currentTheme: string | undefined) => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
@@ -56,10 +57,10 @@ export default function Home() {
 
     if (taskToUpdate) {
       const updatedTime = taskToUpdate.elapsed_time + increment;
-      if (updatedTime < 0) {
+      if (updatedTime < 0 || backendWorking) {
         return;
       }
-
+      setBackendWorking(true);
       axios
         .post(`${apiURL}/tasks/${id}/addtime`, {
           elapsed_time: increment,
@@ -73,6 +74,7 @@ export default function Home() {
           setTotalTime((prevTotalTime) =>
             Math.max(prevTotalTime + increment, 0)
           );
+          setBackendWorking(false);
         })
         .catch((error) => {
           console.error("Failed to update task elapsed_time:", error);
