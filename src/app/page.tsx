@@ -37,14 +37,17 @@ export default function Home() {
       .get(`${apiURL}/tasks`)
       .then((response) => {
         setTasks(response.data.data);
+        const totalTime = response.data.data.reduce(
+          (acc: number, task: Task) => acc + task.elapsed_time,
+          0
+        );
+        setTotalTime(totalTime);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching tasks:", error);
         setLoading(false);
       });
-
-    setTotalTime(tasks.reduce((acc, task) => acc + task.elapsed_time, 0));
     console.log("RE-RENDERING");
   }, []);
 
