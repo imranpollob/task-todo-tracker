@@ -240,8 +240,9 @@ export default function Home() {
                 <SheetHeader className="sm:text-center">
                   <SheetTitle>Get Access</SheetTitle>
                   <SheetDescription>
-                    Welcome! Enter your details and we'll identify if you're
-                    signing up or logging in.
+                    {
+                      "Welcome! Enter your details and we'll identify if you're signing up or logging in."
+                    }
                   </SheetDescription>
                 </SheetHeader>
                 <Form {...form}>
