@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+import Cookies from "js-cookie";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Task } from "@/components/Task";
 import { NewTask } from "@/components/NewTask";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,8 +13,35 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTheme } from "next-themes";
 import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 import { numberToTime } from "@/helpers/NumberToTime";
+
+const FormSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" }),
+});
 
 export default function Home() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
@@ -27,6 +57,7 @@ export default function Home() {
   const [totalTime, setTotalTime] = useState(0);
   const [loading, setLoading] = useState(true);
   const [backendWorking, setBackendWorking] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const toggleTheme = (currentTheme: string | undefined) => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
@@ -34,6 +65,22 @@ export default function Home() {
   };
 
   useEffect(() => {
+    axios.defaults.withCredentials = true;
+    axios.defaults.withXSRFToken = true;
+    const token = Cookies.get("auth_token");
+
+    if (token) {
+      // meaning user is logged in
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setIsLoggedIn(true);
+      fetchTasks();
+    } else {
+      setLoading(true);
+      // show login/registration popup
+    }
+  }, []);
+
+  const fetchTasks = () => {
     axios
       .get(`${apiURL}/tasks`)
       .then((response) => {
@@ -47,10 +94,9 @@ export default function Home() {
       })
       .catch((error) => {
         console.error("Error fetching tasks:", error);
-        setLoading(false);
+        setLoading(true);
       });
-    console.log("RE-RENDERING");
-  }, []);
+  };
 
   const handleAddTime = (id: number, increment: number) => {
     const taskToUpdate = tasks.find((task) => task.id === id);
@@ -121,6 +167,47 @@ export default function Home() {
       });
   };
 
+  const handleRegistration = (email: string, password: string) => {
+    axios
+      .post(`${apiURL}/register`, { email, password })
+      .then((response) => {
+        console.log("Registered successfully:", response);
+      })
+      .catch((error) => {
+        console.error("Failed to register:", error);
+      });
+  };
+
+  const handleLogin = (email: string, password: string) => {
+    // geting laravel sanctum csrf token
+    // axios.get(`${process.env.NEXT_PUBLIC_CSRF_URL}/sanctum/csrf-cookie`);
+
+    // login
+    axios
+      .post(`${apiURL}/login`, { email, password })
+      .then((response) => {
+        Cookies.set("auth_token", response.data.data.auth_token, {
+          expires: 30, // 30 days
+        });
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${response.data.data.auth_token}`;
+        setIsLoggedIn(true);
+        fetchTasks();
+      })
+      .catch((error) => {
+        console.error("Failed to login:", error);
+      });
+  };
+
+  const handleLogout = () => {
+    Cookies.remove("auth_token");
+    axios.defaults.headers.common["Authorization"] = "";
+    setIsLoggedIn(false);
+    setTasks([]);
+    setTotalTime(0);
+  };
+
   return (
     <div
       key="1"
@@ -133,6 +220,19 @@ export default function Home() {
           <div className="text-lg font-medium">
             Total Time: {numberToTime(totalTime)}
           </div>
+        )}
+
+        {!isLoggedIn ? (
+          <Button
+            variant={"outline"}
+            onClick={() => handleLogin("a@a.com", "123")}
+          >
+            Login
+          </Button>
+        ) : (
+          <Button variant={"outline"} onClick={handleLogout}>
+            Logout
+          </Button>
         )}
 
         <Button
@@ -174,7 +274,7 @@ export default function Home() {
         )}
       </div>
 
-      <NewTask addTask={handleTaskAdd} />
+      {isLoggedIn && <NewTask addTask={handleTaskAdd} />}
     </div>
   );
 }
