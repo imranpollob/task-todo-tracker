@@ -14,6 +14,7 @@ import { useTheme } from "next-themes";
 import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetClose,
@@ -40,11 +41,18 @@ const FormSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters" }),
+    .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 export default function Home() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   interface Task {
     id: number;
@@ -58,6 +66,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [backendWorking, setBackendWorking] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginSheet, setShowLoginSheet] = useState(false);
 
   const toggleTheme = (currentTheme: string | undefined) => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
@@ -167,17 +176,6 @@ export default function Home() {
       });
   };
 
-  const handleRegistration = (email: string, password: string) => {
-    axios
-      .post(`${apiURL}/register`, { email, password })
-      .then((response) => {
-        console.log("Registered successfully:", response);
-      })
-      .catch((error) => {
-        console.error("Failed to register:", error);
-      });
-  };
-
   const handleLogin = (email: string, password: string) => {
     // geting laravel sanctum csrf token
     // axios.get(`${process.env.NEXT_PUBLIC_CSRF_URL}/sanctum/csrf-cookie`);
@@ -208,6 +206,11 @@ export default function Home() {
     setTotalTime(0);
   };
 
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    setShowLoginSheet(false);
+    handleLogin(data.email, data.password);
+  }
+
   return (
     <div
       key="1"
@@ -222,29 +225,98 @@ export default function Home() {
           </div>
         )}
 
-        {!isLoggedIn ? (
-          <Button
-            variant={"outline"}
-            onClick={() => handleLogin("a@a.com", "123")}
-          >
-            Login
-          </Button>
-        ) : (
-          <Button variant={"outline"} onClick={handleLogout}>
-            Logout
-          </Button>
-        )}
+        <div className="flex items-center justify-between">
+          {!isLoggedIn ? (
+            <Sheet open={showLoginSheet}>
+              <SheetTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  onClick={() => setShowLoginSheet(true)}
+                >
+                  Login
+                </Button>
+              </SheetTrigger>
+              <SheetContent side={"top"} className="max-w-md mx-auto">
+                <SheetHeader className="sm:text-center">
+                  <SheetTitle>Get Access</SheetTitle>
+                  <SheetDescription>
+                    Welcome! Enter your details and we'll identify if you're
+                    signing up or logging in.
+                  </SheetDescription>
+                </SheetHeader>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="grid gap-4 py-4 pb-0"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem className="grid grid-cols-4 items-center gap-4">
+                          <FormLabel className="text-right mt-2">
+                            Email
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              {...field}
+                              className="col-span-3"
+                              placeholder="youremail@example.com"
+                            />
+                          </FormControl>
+                          <FormMessage className="col-span-4" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem className="grid grid-cols-4 items-center gap-4">
+                          <FormLabel className="text-right mt-2">
+                            Password
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="password"
+                              {...field}
+                              className="col-span-3"
+                              placeholder="********"
+                            />
+                          </FormControl>
+                          <FormMessage className="col-span-4" />
+                        </FormItem>
+                      )}
+                    />
+                    <SheetFooter>
+                      <SheetClose asChild>
+                        <Button className="w-full" type="submit">
+                          Enter
+                        </Button>
+                      </SheetClose>
+                    </SheetFooter>
+                  </form>
+                </Form>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Button variant={"outline"} onClick={handleLogout}>
+              Logout
+            </Button>
+          )}
 
-        <Button
-          variant="outline"
-          size="icon"
-          className="rounded-full border border-gray-200 w-8 h-8"
-          onClick={() => toggleTheme(theme)}
-        >
-          <Icon.Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Icon.Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-full border border-gray-200 w-8 h-8 ml-4"
+            onClick={() => toggleTheme(theme)}
+          >
+            <Icon.Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Icon.Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+        </div>
       </header>
 
       <div className="flex-1 overflow-hidden">

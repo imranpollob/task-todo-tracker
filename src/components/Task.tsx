@@ -89,7 +89,7 @@ export function Task({
           <Icon.CircleMinus className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
 
-        <Sheet key="top">
+        <Sheet>
           <SheetTrigger asChild>
             <button
               title="Edit task"
@@ -100,7 +100,7 @@ export function Task({
           </SheetTrigger>
 
           <SheetContent side="top" className="max-w-md mx-auto">
-            <SheetHeader>
+            <SheetHeader className="sm:text-center">
               <SheetTitle>Configure Task</SheetTitle>
               <SheetDescription>Edit or delete the task</SheetDescription>
             </SheetHeader>
@@ -125,10 +125,10 @@ export function Task({
                     </FormItem>
                   )}
                 />
-                <SheetFooter>
+                <SheetFooter className=" sm:flex-col-reverse sm:space-x-0 ">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" className="mt-2 sm:mt-0">
+                      <Button variant="destructive" className="mt-2">
                         Delete
                       </Button>
                     </AlertDialogTrigger>
