@@ -255,8 +255,10 @@ export default function Home() {
                 ))
               ) : (
                 <>
-                  <p className="text-2xl text-center mt-10">So Empty</p>
-                  <p className="text-center">
+                  <p className="text-2xl text-center mt-10 text-gray-900 dark:text-gray-50 font-medium">
+                    So Empty
+                  </p>
+                  <p className="text-center text-gray-900 dark:text-gray-50">
                     Add a task by using the form below
                   </p>
                 </>
@@ -267,6 +269,15 @@ export default function Home() {
       </div>
 
       {isLoggedIn && <NewTask addTask={handleTaskAdd} />}
+      <div className="flex justify-between mx-2 mb-2">
+        <Button variant="outline" className="pl-2">
+          <Icon.ChevronLeft className="h-4 w-6" /> 10 May
+        </Button>
+        <Button variant="outline">Today</Button>
+        <Button variant="outline" className="pr-2">
+          12 May <Icon.ChevronRight className="h-4 w-6" />
+        </Button>
+      </div>
     </div>
   );
 }
