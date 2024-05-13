@@ -3,56 +3,19 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Task } from "@/components/Task";
 import { NewTask } from "@/components/NewTask";
+import { Login } from "@/components/Login";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useTheme } from "next-themes";
 import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 
 import { numberToTime } from "@/helpers/NumberToTime";
 
-const FormSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
-});
-
 export default function Home() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
 
   interface Task {
     id: number;
@@ -133,11 +96,16 @@ export default function Home() {
         })
         .catch((error) => {
           console.error("Failed to update task elapsed_time:", error);
+          setBackendWorking(false);
         });
     }
   };
 
   const handleNameChange = (id: number, newName: string) => {
+    if (backendWorking) {
+      return;
+    }
+    setBackendWorking(true);
     axios
       .put(`${apiURL}/tasks/${id}`, { name: newName })
       .then((response) => {
@@ -146,33 +114,47 @@ export default function Home() {
             task.id === id ? { ...task, name: newName } : task
           )
         );
+        setBackendWorking(false);
       })
       .catch((error) => {
         console.error("Failed to update task name:", error);
+        setBackendWorking(false);
       });
   };
 
   const handleTaskAdd = (taskName: string) => {
     const newTask = { name: taskName, elapsed_time: 0 };
+    if (backendWorking) {
+      return;
+    }
+    setBackendWorking(true);
     axios
       .post(`${apiURL}/tasks`, newTask)
       .then((response) => {
         const createdTask = response.data.data;
         setTasks((tasks) => [...tasks, createdTask]);
+        setBackendWorking(false);
       })
       .catch((error) => {
         console.error("Failed to add new task:", error);
+        setBackendWorking(false);
       });
   };
 
   const handleTaskDelete = (id: number) => {
+    if (backendWorking) {
+      return;
+    }
+    setBackendWorking(true);
     axios
       .delete(`${apiURL}/tasks/${id}`)
       .then((response) => {
         setTasks((tasks) => tasks.filter((task) => task.id !== id));
+        setBackendWorking(false);
       })
       .catch((error) => {
         console.error("Failed to delete task:", error);
+        setBackendWorking(false);
       });
   };
 
@@ -181,6 +163,10 @@ export default function Home() {
     // axios.get(`${process.env.NEXT_PUBLIC_CSRF_URL}/sanctum/csrf-cookie`);
 
     // login
+    if (backendWorking) {
+      return;
+    }
+    setBackendWorking(true);
     axios
       .post(`${apiURL}/login`, { email, password })
       .then((response) => {
@@ -191,10 +177,14 @@ export default function Home() {
           "Authorization"
         ] = `Bearer ${response.data.data.auth_token}`;
         setIsLoggedIn(true);
+        setShowLoginSheet(false);
         fetchTasks();
+        setBackendWorking(false);
+        return true;
       })
       .catch((error) => {
-        console.error("Failed to login:", error);
+        console.error("Failed to login:", error.response.data.message);
+        setBackendWorking(false);
       });
   };
 
@@ -205,11 +195,6 @@ export default function Home() {
     setTasks([]);
     setTotalTime(0);
   };
-
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    setShowLoginSheet(false);
-    handleLogin(data.email, data.password);
-  }
 
   return (
     <div
@@ -226,87 +211,13 @@ export default function Home() {
         )}
 
         <div className="flex items-center justify-between">
-          {!isLoggedIn ? (
-            <Sheet open={showLoginSheet}>
-              <SheetTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  onClick={() => setShowLoginSheet(true)}
-                >
-                  Login
-                </Button>
-              </SheetTrigger>
-              <SheetContent side={"top"} className="max-w-md mx-auto">
-                <SheetHeader className="sm:text-center">
-                  <SheetTitle>Get Access</SheetTitle>
-                  <SheetDescription>
-                    {
-                      "Welcome! Enter your details and we'll identify if you're signing up or logging in."
-                    }
-                  </SheetDescription>
-                </SheetHeader>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="grid gap-4 py-4 pb-0"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-4 items-center gap-4">
-                          <FormLabel className="text-right mt-2">
-                            Email
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="email"
-                              {...field}
-                              className="col-span-3"
-                              placeholder="youremail@example.com"
-                            />
-                          </FormControl>
-                          <FormMessage className="col-span-4" />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-4 items-center gap-4">
-                          <FormLabel className="text-right mt-2">
-                            Password
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="password"
-                              {...field}
-                              className="col-span-3"
-                              placeholder="********"
-                            />
-                          </FormControl>
-                          <FormMessage className="col-span-4" />
-                        </FormItem>
-                      )}
-                    />
-                    <SheetFooter>
-                      <SheetClose asChild>
-                        <Button className="w-full" type="submit">
-                          Enter
-                        </Button>
-                      </SheetClose>
-                    </SheetFooter>
-                  </form>
-                </Form>
-              </SheetContent>
-            </Sheet>
-          ) : (
-            <Button variant={"outline"} onClick={handleLogout}>
-              Logout
-            </Button>
-          )}
-
+          <Login
+            isLoggedIn={isLoggedIn}
+            showLoginSheet={showLoginSheet}
+            setShowLoginSheet={setShowLoginSheet}
+            handleLogin={handleLogin}
+            handleLogout={handleLogout}
+          />
           <Button
             variant="outline"
             size="icon"
