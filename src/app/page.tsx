@@ -158,34 +158,33 @@ export default function Home() {
       });
   };
 
-  const handleLogin = (email: string, password: string) => {
-    // geting laravel sanctum csrf token
-    // axios.get(`${process.env.NEXT_PUBLIC_CSRF_URL}/sanctum/csrf-cookie`);
-
-    // login
-    if (backendWorking) {
-      return;
-    }
-    setBackendWorking(true);
-    axios
-      .post(`${apiURL}/login`, { email, password })
-      .then((response) => {
-        Cookies.set("auth_token", response.data.data.auth_token, {
-          expires: 30, // 30 days
+  const handleLogin = (email: string, password: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      if (backendWorking) {
+        reject("Backend is already working.");
+      }
+      setBackendWorking(true);
+      axios
+        .post(`${apiURL}/login`, { email, password })
+        .then((response) => {
+          Cookies.set("auth_token", response.data.data.auth_token, {
+            expires: 30, // 30 days
+          });
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${response.data.data.auth_token}`;
+          setIsLoggedIn(true);
+          setShowLoginSheet(false);
+          fetchTasks();
+          setBackendWorking(false);
+          resolve(response);
+        })
+        .catch((error) => {
+          console.error("Failed to login:", error);
+          setBackendWorking(false);
+          reject(error.response);
         });
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${response.data.data.auth_token}`;
-        setIsLoggedIn(true);
-        setShowLoginSheet(false);
-        fetchTasks();
-        setBackendWorking(false);
-        return true;
-      })
-      .catch((error) => {
-        console.error("Failed to login:", error.response.data.message);
-        setBackendWorking(false);
-      });
+    });
   };
 
   const handleLogout = () => {
@@ -194,6 +193,7 @@ export default function Home() {
     setIsLoggedIn(false);
     setTasks([]);
     setTotalTime(0);
+    setLoading(true);
   };
 
   return (
@@ -241,18 +241,26 @@ export default function Home() {
         ) : (
           <div className="h-full overflow-y-auto">
             <div className="space-y-2 p-3">
-              {/* Task list */}
-              {tasks.map((task, index) => (
-                <Task
-                  key={index}
-                  id={task.id}
-                  name={task.name}
-                  elapsed_time={task.elapsed_time}
-                  addTime={handleAddTime}
-                  changeName={handleNameChange}
-                  deleteTask={handleTaskDelete}
-                />
-              ))}
+              {tasks.length ? (
+                tasks.map((task, index) => (
+                  <Task
+                    key={index}
+                    id={task.id}
+                    name={task.name}
+                    elapsed_time={task.elapsed_time}
+                    addTime={handleAddTime}
+                    changeName={handleNameChange}
+                    deleteTask={handleTaskDelete}
+                  />
+                ))
+              ) : (
+                <>
+                  <p className="text-2xl text-center mt-10">So Empty</p>
+                  <p className="text-center">
+                    Add a task by using the form below
+                  </p>
+                </>
+              )}
             </div>
           </div>
         )}

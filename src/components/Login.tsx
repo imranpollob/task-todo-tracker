@@ -43,7 +43,7 @@ export function Login({
   isLoggedIn: boolean;
   showLoginSheet: boolean;
   setShowLoginSheet: (showLoginSheet: boolean) => void;
-  handleLogin: (email: string, password: string) => void;
+  handleLogin: (email: string, password: string) => any;
   handleLogout: () => void;
 }) {
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -54,8 +54,19 @@ export function Login({
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    handleLogin(data.email, data.password);
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      const serverStatus = await handleLogin(data.email, data.password);
+      console.log(serverStatus);
+
+      form.reset();
+    } catch (error) {
+      form.setError("password", {
+        type: "server",
+        message: error.data.message,
+      });
+      console.error("Login error:", error);
+    }
   }
 
   return (
@@ -95,7 +106,7 @@ export function Login({
                           placeholder="youremail@example.com"
                         />
                       </FormControl>
-                      <FormMessage className="col-span-4" />
+                      <FormMessage className="col-start-2 col-span-3" />
                     </FormItem>
                   )}
                 />
@@ -115,7 +126,7 @@ export function Login({
                           placeholder="********"
                         />
                       </FormControl>
-                      <FormMessage className="col-span-4" />
+                      <FormMessage className="col-start-2 col-span-3" />
                     </FormItem>
                   )}
                 />

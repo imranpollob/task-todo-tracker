@@ -121,7 +121,7 @@ export function Task({
                       <FormControl>
                         <Input type="text" {...field} className="col-span-3" />
                       </FormControl>
-                      <FormMessage className="col-span-4" />
+                      <FormMessage className="col-start-2 col-span-3" />
                     </FormItem>
                   )}
                 />
