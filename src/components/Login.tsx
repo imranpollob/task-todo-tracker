@@ -57,10 +57,8 @@ export function Login({
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       const serverStatus = await handleLogin(data.email, data.password);
-      console.log(serverStatus);
-
       form.reset();
-    } catch (error) {
+    } catch (error: any) {
       form.setError("password", {
         type: "server",
         message: error.data.message,

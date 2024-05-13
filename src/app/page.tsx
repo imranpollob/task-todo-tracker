@@ -7,6 +7,7 @@ import { Task } from "@/components/Task";
 import { NewTask } from "@/components/NewTask";
 import { Login } from "@/components/Login";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { useTheme } from "next-themes";
 import * as Icon from "lucide-react";
@@ -16,6 +17,7 @@ import { numberToTime } from "@/helpers/NumberToTime";
 
 export default function Home() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   interface Task {
     id: number;
@@ -28,7 +30,6 @@ export default function Home() {
   const [totalTime, setTotalTime] = useState(0);
   const [loading, setLoading] = useState(true);
   const [backendWorking, setBackendWorking] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginSheet, setShowLoginSheet] = useState(false);
 
   const toggleTheme = (currentTheme: string | undefined) => {
@@ -180,7 +181,6 @@ export default function Home() {
           resolve(response);
         })
         .catch((error) => {
-          console.error("Failed to login:", error);
           setBackendWorking(false);
           reject(error.response);
         });
