@@ -14,6 +14,7 @@ import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { numberToTime } from "@/helpers/NumberToTime";
+import { getCustomDate } from "@/helpers/DateHelper";
 
 export default function Home() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
@@ -31,6 +32,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [backendWorking, setBackendWorking] = useState(false);
   const [showLoginSheet, setShowLoginSheet] = useState(false);
+  const [dayPointer, setDayPointer] = useState(0);
 
   const toggleTheme = (currentTheme: string | undefined) => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
@@ -196,6 +198,18 @@ export default function Home() {
     setLoading(true);
   };
 
+  const handleToday = () => {
+    setDayPointer(0);
+  };
+
+  const handlePreviousDay = () => {
+    setDayPointer(dayPointer - 1);
+  };
+
+  const handleNextDay = () => {
+    setDayPointer(dayPointer + 1);
+  };
+
   return (
     <div
       key="1"
@@ -268,16 +282,28 @@ export default function Home() {
         )}
       </div>
 
-      {isLoggedIn && <NewTask addTask={handleTaskAdd} />}
-      <div className="flex justify-between mx-2 mb-2">
-        <Button variant="outline" className="pl-2">
-          <Icon.ChevronLeft className="h-4 w-6" /> 10 May
-        </Button>
-        <Button variant="outline">Today</Button>
-        <Button variant="outline" className="pr-2">
-          12 May <Icon.ChevronRight className="h-4 w-6" />
-        </Button>
-      </div>
+      {isLoggedIn && (
+        <>
+          <NewTask addTask={handleTaskAdd} />
+          <div className="flex justify-between mx-2 mb-2">
+            <Button
+              variant="outline"
+              className="pl-2"
+              onClick={handlePreviousDay}
+            >
+              <Icon.ChevronLeft className="h-4 w-6" />{" "}
+              {getCustomDate(dayPointer - 1)}
+            </Button>
+            <Button variant="outline" onClick={handleToday}>
+              Today
+            </Button>
+            <Button variant="outline" className="pr-2" onClick={handleNextDay}>
+              {getCustomDate(dayPointer + 1)}{" "}
+              <Icon.ChevronRight className="h-4 w-6" />
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
