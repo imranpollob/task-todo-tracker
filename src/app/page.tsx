@@ -55,9 +55,9 @@ export default function Home() {
     }
   }, []);
 
-  const fetchTasks = () => {
+  const fetchTasks = (day: number = 0) => {
     axios
-      .get(`${apiURL}/tasks`)
+      .get(`${apiURL}/tasks?day=${day}`)
       .then((response) => {
         setTasks(response.data.data);
         const totalTime = response.data.data.reduce(
@@ -85,6 +85,7 @@ export default function Home() {
       axios
         .post(`${apiURL}/tasks/${id}/addtime`, {
           elapsed_time: increment,
+          day: dayPointer,
         })
         .then((response) => {
           setTasks((tasks) =>
@@ -200,14 +201,19 @@ export default function Home() {
 
   const handleToday = () => {
     setDayPointer(0);
+    fetchTasks();
   };
 
   const handlePreviousDay = () => {
-    setDayPointer(dayPointer - 1);
+    const newDayPointer = dayPointer - 1;
+    setDayPointer(newDayPointer);
+    fetchTasks(newDayPointer);
   };
 
   const handleNextDay = () => {
-    setDayPointer(dayPointer + 1);
+    const newDayPointer = dayPointer + 1;
+    setDayPointer(newDayPointer);
+    fetchTasks(newDayPointer);
   };
 
   return (
@@ -297,7 +303,12 @@ export default function Home() {
             <Button variant="outline" onClick={handleToday}>
               Today
             </Button>
-            <Button variant="outline" className="pr-2" onClick={handleNextDay}>
+            <Button
+              variant="outline"
+              disabled={dayPointer >= 0}
+              className="pr-2"
+              onClick={handleNextDay}
+            >
               {getCustomDate(dayPointer + 1)}{" "}
               <Icon.ChevronRight className="h-4 w-6" />
             </Button>
