@@ -14,6 +14,7 @@ import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { numberToTime } from "@/helpers/NumberToTime";
+import { getCustomDate } from "@/helpers/DateHelper";
 
 export default function Home() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
@@ -31,6 +32,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [backendWorking, setBackendWorking] = useState(false);
   const [showLoginSheet, setShowLoginSheet] = useState(false);
+  const [dayPointer, setDayPointer] = useState(0);
 
   const toggleTheme = (currentTheme: string | undefined) => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
@@ -53,9 +55,9 @@ export default function Home() {
     }
   }, []);
 
-  const fetchTasks = () => {
+  const fetchTasks = (day: number = 0) => {
     axios
-      .get(`${apiURL}/tasks`)
+      .get(`${apiURL}/tasks?day=${day}`)
       .then((response) => {
         setTasks(response.data.data);
         const totalTime = response.data.data.reduce(
@@ -83,6 +85,7 @@ export default function Home() {
       axios
         .post(`${apiURL}/tasks/${id}/addtime`, {
           elapsed_time: increment,
+          day: dayPointer,
         })
         .then((response) => {
           setTasks((tasks) =>
@@ -196,6 +199,23 @@ export default function Home() {
     setLoading(true);
   };
 
+  const handleToday = () => {
+    setDayPointer(0);
+    fetchTasks();
+  };
+
+  const handlePreviousDay = () => {
+    const newDayPointer = dayPointer - 1;
+    setDayPointer(newDayPointer);
+    fetchTasks(newDayPointer);
+  };
+
+  const handleNextDay = () => {
+    const newDayPointer = dayPointer + 1;
+    setDayPointer(newDayPointer);
+    fetchTasks(newDayPointer);
+  };
+
   return (
     <div
       key="1"
@@ -255,8 +275,10 @@ export default function Home() {
                 ))
               ) : (
                 <>
-                  <p className="text-2xl text-center mt-10">So Empty</p>
-                  <p className="text-center">
+                  <p className="text-2xl text-center mt-10 text-gray-900 dark:text-gray-50 font-medium">
+                    So Empty
+                  </p>
+                  <p className="text-center text-gray-900 dark:text-gray-50">
                     Add a task by using the form below
                   </p>
                 </>
@@ -266,7 +288,33 @@ export default function Home() {
         )}
       </div>
 
-      {isLoggedIn && <NewTask addTask={handleTaskAdd} />}
+      {isLoggedIn && (
+        <>
+          <NewTask addTask={handleTaskAdd} />
+          <div className="flex justify-between mx-2 mb-2">
+            <Button
+              variant="outline"
+              className="pl-2"
+              onClick={handlePreviousDay}
+            >
+              <Icon.ChevronLeft className="h-4 w-6" />{" "}
+              {getCustomDate(dayPointer - 1)}
+            </Button>
+            <Button variant="outline" onClick={handleToday}>
+              Today
+            </Button>
+            <Button
+              variant="outline"
+              disabled={dayPointer >= 0}
+              className="pr-2"
+              onClick={handleNextDay}
+            >
+              {getCustomDate(dayPointer + 1)}{" "}
+              <Icon.ChevronRight className="h-4 w-6" />
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
