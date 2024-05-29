@@ -202,12 +202,16 @@ export default function Home() {
       className="flex flex-col h-screen max-w-md mx-auto bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border border-gray-200 dark:border-gray-800"
     >
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 shadow-sm">
-        {loading ? (
-          <Skeleton className="h-8 w-40" />
+        {isLoggedIn ? (
+          loading ? (
+            <Skeleton className="h-8 w-40" />
+          ) : (
+            <div className="text-lg font-medium">
+              Total Time: {numberToTime(totalTime)}
+            </div>
+          )
         ) : (
-          <div className="text-lg font-medium">
-            Total Time: {numberToTime(totalTime)}
-          </div>
+          <div className="text-lg font-medium">Task Tracker</div>
         )}
 
         <div className="flex items-center justify-between">
@@ -232,52 +236,62 @@ export default function Home() {
       </header>
 
       <div className="flex-1 overflow-hidden">
-        {loading ? (
-          <div className="p-3">
-            <Skeleton className="h-16 mb-2" />
-            <Skeleton className="h-16 mb-2" />
-            <Skeleton className="h-16 mb-2" />
-          </div>
-        ) : (
-          <div className="h-full overflow-y-auto">
-            <div className="space-y-2 p-3">
-              {tasks.length ? (
-                tasks.map((task, index) => (
-                  <Task
-                    key={index}
-                    id={task.id}
-                    name={task.name}
-                    elapsed_time={task.elapsed_time}
-                    addTime={handleAddTime}
-                    changeName={handleNameChange}
-                    deleteTask={handleTaskDelete}
-                  />
-                ))
-              ) : (
-                <>
-                  <p className="text-2xl text-center mt-10 text-gray-900 dark:text-gray-50 font-medium">
-                    So Empty
-                  </p>
-                  <p className="text-center text-gray-900 dark:text-gray-50">
-                    Add a task by using the form below
-                  </p>
-                </>
-              )}
+        {isLoggedIn ? (
+          loading ? (
+            <div className="p-3">
+              <Skeleton className="h-16 mb-2" />
+              <Skeleton className="h-16 mb-2" />
+              <Skeleton className="h-16 mb-2" />
             </div>
-          </div>
+          ) : (
+            <div className="h-full overflow-y-auto">
+              <div className="space-y-2 p-3">
+                {tasks.length ? (
+                  tasks.map((task, index) => (
+                    <Task
+                      key={index}
+                      id={task.id}
+                      name={task.name}
+                      elapsed_time={task.elapsed_time}
+                      addTime={handleAddTime}
+                      changeName={handleNameChange}
+                      deleteTask={handleTaskDelete}
+                    />
+                  ))
+                ) : (
+                  <>
+                    <p className="text-2xl text-center mt-10 text-gray-900 dark:text-gray-50 font-medium">
+                      So Empty
+                    </p>
+                    <p className="text-center text-gray-900 dark:text-gray-50">
+                      Add a task by using the form below
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          )
+        ) : (
+          <p className="text-2xl text-center mt-10 text-gray-900 dark:text-gray-50 font-medium">
+            Please Login First
+          </p>
         )}
       </div>
 
-      {isLoggedIn && <NewTask addTask={handleTaskAdd} />}
-      <div className="flex justify-between mx-2 mb-2">
-        <Button variant="outline" className="pl-2">
-          <Icon.ChevronLeft className="h-4 w-6" /> 10 May
-        </Button>
-        <Button variant="outline">Today</Button>
-        <Button variant="outline" className="pr-2">
-          12 May <Icon.ChevronRight className="h-4 w-6" />
-        </Button>
-      </div>
+      {isLoggedIn && (
+        <>
+          <NewTask addTask={handleTaskAdd} />
+          <div className="flex justify-between mx-2 mb-2">
+            <Button variant="outline" className="pl-2">
+              <Icon.ChevronLeft className="h-4 w-6" /> 10 May
+            </Button>
+            <Button variant="outline">Today</Button>
+            <Button variant="outline" className="pr-2">
+              12 May <Icon.ChevronRight className="h-4 w-6" />
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
