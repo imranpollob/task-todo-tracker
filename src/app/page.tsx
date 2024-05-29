@@ -14,7 +14,7 @@ import * as Icon from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { numberToTime } from "@/helpers/NumberToTime";
-import { getCustomDate } from "@/helpers/DateHelper";
+import { getCustomDate, getTimeDifference } from "@/helpers/DateHelper";
 
 export default function Home() {
   const apiURL = process.env.NEXT_PUBLIC_API_URL;
@@ -33,6 +33,7 @@ export default function Home() {
   const [backendWorking, setBackendWorking] = useState(false);
   const [showLoginSheet, setShowLoginSheet] = useState(false);
   const [dayPointer, setDayPointer] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState("");
 
   const toggleTheme = (currentTheme: string | undefined) => {
     const newTheme = currentTheme === "light" ? "dark" : "light";
@@ -60,12 +61,19 @@ export default function Home() {
       .get(`${apiURL}/tasks?day=${day}`)
       .then((response) => {
         setTasks(response.data.data);
+
         const totalTime = response.data.data.reduce(
           (acc: number, task: Task) => acc + task.elapsed_time,
           0
         );
+
         setTotalTime(totalTime);
+
         setLoading(false);
+
+        if (response.data.latest_task_time) {
+          setLastUpdated(getTimeDifference(response.data.latest_task_time));
+        }
       })
       .catch((error) => {
         console.error("Error fetching tasks:", error);
@@ -96,6 +104,7 @@ export default function Home() {
           setTotalTime((prevTotalTime) =>
             Math.max(prevTotalTime + increment, 0)
           );
+          setLastUpdated("0s");
           setBackendWorking(false);
         })
         .catch((error) => {
@@ -196,6 +205,7 @@ export default function Home() {
     setIsLoggedIn(false);
     setTasks([]);
     setTotalTime(0);
+    setLastUpdated("");
     setLoading(true);
   };
 
@@ -228,6 +238,9 @@ export default function Home() {
           ) : (
             <div className="text-lg font-medium">
               Total Time: {numberToTime(totalTime)}
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Last Updated: {lastUpdated ? lastUpdated + " ago" : "Never"}
+              </p>
             </div>
           )
         ) : (
