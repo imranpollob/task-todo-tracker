@@ -304,7 +304,20 @@ export default function Home() {
               </>
             )
           ) : (
-            <p className="text-2xl text-center mt-10 font-medium">Please Login First</p>
+            <section className="flex flex-col items-center justify-center py-16 px-4 sm:px-8">
+              <div className="mb-6 flex flex-col items-center">
+                <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-50 text-center leading-tight mb-3">Track Your Tasks Effortlessly</h1>
+                <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 text-center max-w-xl mb-6">Stay organized and boost your productivity by logging your daily tasks time</p>
+              </div>
+              <div className="flex justify-center">
+                <button
+                  className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow transition-all text-lg"
+                  onClick={() => setShowLoginSheet(true)}
+                >
+                  Login
+                </button>
+              </div>
+            </section>
           )}
         </div>
       </main>

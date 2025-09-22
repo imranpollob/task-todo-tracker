@@ -1,7 +1,7 @@
+# Task Time Tracker Frontend
+This project provides a minimalistic interface to manage tasks and track time on a daily basis.
 
-# Task Todo Tracker Frontend (Next.js)
-
-This is the frontend for the Task Todo Tracker app, built with Next.js, TypeScript, and Tailwind CSS.
+![Task Tracker Screenshot](./dashboard.png)
 
 ## Requirements
 - Node.js >= 18
@@ -50,8 +50,3 @@ This is the frontend for the Task Todo Tracker app, built with Next.js, TypeScri
 - Communicates with the backend via REST endpoints (see backend API docs)
 - Authentication context in `src/contexts/AuthContext.js` (matches backend Laravel Sanctum)
 
-## Deployment
-- Deploy on Vercel or any platform supporting Next.js
-
----
-For more details, see the Next.js documentation: https://nextjs.org/docs
