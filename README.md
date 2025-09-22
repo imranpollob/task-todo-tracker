@@ -8,11 +8,15 @@ This is the frontend for the Task Todo Tracker app, built with Next.js, TypeScri
 - npm (or yarn/pnpm/bun)
 
 ## Installation
-1. Install dependencies:
+1. Create a `.env.local` file in the project root and set your backend API URL:
+	```sh
+	NEXT_PUBLIC_API_URL=http://localhost:8000/api
+	```
+2. Install dependencies:
 	 ```sh
 	 npm install
 	 ```
-2. Start the development server:
+3. Start the development server:
 	 ```sh
 	 npm run dev
 	 ```
@@ -30,7 +34,7 @@ This is the frontend for the Task Todo Tracker app, built with Next.js, TypeScri
 	```sh
 	npm run build
 	```
-- Lint (if configured):
+- Lint (if configured):`
 	```sh
 	npm run lint
 	```

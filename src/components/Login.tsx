@@ -130,9 +130,14 @@ export function Login({
                 />
                 <SheetFooter>
                   <SheetClose asChild>
-                    <Button className="w-full" type="submit">
-                      Enter
-                    </Button>
+                    <div className="w-full" >
+                      <Button className="w-full" type="submit">
+                        Enter
+                      </Button>
+                      <Button className="w-full mt-2" variant="outline" type="button" onClick={() => setShowLoginSheet(false)}>
+                        Close
+                      </Button>
+                    </div>
                   </SheetClose>
                 </SheetFooter>
               </form>
