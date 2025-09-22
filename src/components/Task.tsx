@@ -74,14 +74,14 @@ export function Task({
   }
 
   return (
-    <div className="flex flex-col items-start p-3 border border-gray-200 dark:border-gray-800 shadow-md">
-      <div className="flex justify-between w-full items-center">
-        <div className="font-medium">{name}</div>
-        <div className="text-gray-500 dark:text-gray-300">
+    <div className="flex flex-col items-start p-3 sm:p-4 border border-gray-200 dark:border-gray-800 rounded-md bg-white/70 dark:bg-gray-900/40 shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="flex justify-between w-full items-center gap-3">
+        <div className="font-medium text-sm sm:text-base truncate" title={name}>{name}</div>
+        <div className="text-gray-600 dark:text-gray-300 text-sm sm:text-base whitespace-nowrap">
           {numberToTime(elapsed_time)}
         </div>
       </div>
-      <div className="flex items-center space-x-6 mt-2">
+      <div className="flex items-center gap-5 sm:gap-6 mt-3">
         <button title="Add 30 mintues" onClick={() => addTime(id, 30)}>
           <Icon.CirclePlus className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>

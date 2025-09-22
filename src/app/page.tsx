@@ -227,113 +227,113 @@ export default function Home() {
   };
 
   return (
-    <div
-      key="1"
-      className="flex flex-col h-screen max-w-md mx-auto bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50 border border-gray-200 dark:border-gray-800"
-    >
-      <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 shadow-sm">
-        {isLoggedIn ? (
-          loading ? (
-            <Skeleton className="h-8 w-40" />
+    <div key="1" className="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50">
+      <header className="border-b border-gray-200 dark:border-gray-800 shadow-sm">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          {isLoggedIn ? (
+            loading ? (
+              <Skeleton className="h-8 w-40" />
+            ) : (
+              <div className="text-base sm:text-lg font-medium">
+                Total Time: {numberToTime(totalTime)}
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Last Updated: {lastUpdated ? lastUpdated + " ago" : "Never"}
+                </p>
+              </div>
+            )
           ) : (
-            <div className="text-lg font-medium">
-              Total Time: {numberToTime(totalTime)}
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Last Updated: {lastUpdated ? lastUpdated + " ago" : "Never"}
-              </p>
-            </div>
-          )
-        ) : (
-          <div className="text-lg font-medium">Task Tracker</div>
-        )}
+            <div className="text-base sm:text-lg font-medium">Task Tracker</div>
+          )}
 
-        <div className="flex items-center justify-between">
-          <Login
-            isLoggedIn={isLoggedIn}
-            showLoginSheet={showLoginSheet}
-            setShowLoginSheet={setShowLoginSheet}
-            handleLogin={handleLogin}
-            handleLogout={handleLogout}
-          />
-          <Button
-            variant="outline"
-            size="icon"
-            className="rounded-full border border-gray-200 w-8 h-8 ml-4"
-            onClick={() => toggleTheme(theme)}
-          >
-            <Icon.Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Icon.Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          <div className="flex items-center">
+            <Login
+              isLoggedIn={isLoggedIn}
+              showLoginSheet={showLoginSheet}
+              setShowLoginSheet={setShowLoginSheet}
+              handleLogin={handleLogin}
+              handleLogout={handleLogout}
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full border border-gray-200 w-8 h-8 ml-4"
+              onClick={() => toggleTheme(theme)}
+            >
+              <Icon.Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Icon.Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+          </div>
         </div>
       </header>
 
-      <div className="flex-1 overflow-hidden">
-        {isLoggedIn ? (
-          loading ? (
-            <div className="p-3">
-              <Skeleton className="h-16 mb-2" />
-              <Skeleton className="h-16 mb-2" />
-              <Skeleton className="h-16 mb-2" />
-            </div>
-          ) : (
-            <div className="h-full overflow-y-auto">
-              <div className="space-y-2 p-3">
+      <main className="flex-1 py-4">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {isLoggedIn ? (
+            loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <Skeleton className="h-24" />
+                <Skeleton className="h-24" />
+                <Skeleton className="h-24" />
+                <Skeleton className="h-24" />
+              </div>
+            ) : (
+              <>
                 {tasks.length ? (
-                  tasks.map((task, index) => (
-                    <Task
-                      key={index}
-                      id={task.id}
-                      name={task.name}
-                      elapsed_time={task.elapsed_time}
-                      addTime={handleAddTime}
-                      changeName={handleNameChange}
-                      deleteTask={handleTaskDelete}
-                    />
-                  ))
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                    {tasks.map((task, index) => (
+                      <Task
+                        key={index}
+                        id={task.id}
+                        name={task.name}
+                        elapsed_time={task.elapsed_time}
+                        addTime={handleAddTime}
+                        changeName={handleNameChange}
+                        deleteTask={handleTaskDelete}
+                      />
+                    ))}
+                  </div>
                 ) : (
-                  <>
-                    <p className="text-2xl text-center mt-10 text-gray-900 dark:text-gray-50 font-medium">
-                      So Empty
-                    </p>
-                    <p className="text-center text-gray-900 dark:text-gray-50">
+                  <div className="text-center py-10">
+                    <p className="text-2xl font-medium">So Empty</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                       Add a task by using the form below
                     </p>
-                  </>
+                  </div>
                 )}
-              </div>
-            </div>
-          )
-        ) : (
-          <p className="text-2xl text-center mt-10 text-gray-900 dark:text-gray-50 font-medium">
-            Please Login First
-          </p>
-        )}
-      </div>
+              </>
+            )
+          ) : (
+            <p className="text-2xl text-center mt-10 font-medium">Please Login First</p>
+          )}
+        </div>
+      </main>
 
       {isLoggedIn && (
         <>
-          <NewTask addTask={handleTaskAdd} />
-          <div className="flex justify-between mx-2 mb-2">
+          <div className="border-t border-gray-200 dark:border-gray-800">
+            <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+              <NewTask addTask={handleTaskAdd} />
+            </div>
+          </div>
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 flex flex-row flex-nowrap gap-2 sm:gap-4 justify-between items-center overflow-x-auto">
             <Button
               variant="outline"
-              className="pl-2"
+              className="pl-2 order-1 whitespace-nowrap text-sm sm:text-base"
               onClick={handlePreviousDay}
             >
-              <Icon.ChevronLeft className="h-4 w-6" />{" "}
-              {getCustomDate(dayPointer - 1)}
+              <Icon.ChevronLeft className="h-4 w-6" /> {getCustomDate(dayPointer - 1)}
             </Button>
-            <Button variant="outline" onClick={handleToday}>
+            <Button variant="outline" onClick={handleToday} className="order-2 whitespace-nowrap text-sm sm:text-base">
               Today
             </Button>
             <Button
               variant="outline"
               disabled={dayPointer >= 0}
-              className="pr-2"
+              className="pr-2 order-3 whitespace-nowrap text-sm sm:text-base"
               onClick={handleNextDay}
             >
-              {getCustomDate(dayPointer + 1)}{" "}
-              <Icon.ChevronRight className="h-4 w-6" />
+              {getCustomDate(dayPointer + 1)} <Icon.ChevronRight className="h-4 w-6" />
             </Button>
           </div>
         </>

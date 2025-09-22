@@ -40,11 +40,11 @@ export function NewTask({ addTask }: TaskProps) {
   }
 
   return (
-    <div className="py-3 px-5 border-t border-gray-200 dark:border-gray-800">
+    <div className="py-3 px-4 sm:px-0 border-t border-gray-200 dark:border-gray-800">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex items-center justify-between"
+          className="mx-auto max-w-2xl flex items-center justify-between"
         >
           <FormField
             control={form.control}

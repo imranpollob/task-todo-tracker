@@ -3,7 +3,7 @@ export function getCustomDate(days = 0) {
   today.setDate(today.getDate() + days);
 
   const day = today.getDate();
-  const month = today.toLocaleString("en-US", { month: "long" });
+  const month = today.toLocaleString("en-US", { month: "short" });
   const formattedDate = `${day} ${month}`;
   return formattedDate;
 }
